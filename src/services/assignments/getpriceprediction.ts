@@ -1,20 +1,14 @@
 'use server'
 
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import axios from 'axios'
 import pdfParse from 'pdf-parse'
 
 const API_KEY = process.env.GEMINI_API_KEY!
-const MODEL_NAME = 'models/gemini-1.5-pro-latest'
+const MODEL_NAME = 'gemini-1.5-flash' // Note: Model name format is different in the SDK
 
-interface GeminiResponse {
-  candidates?: {
-    content?: {
-      parts?: {
-        text?: string
-      }[]
-    }
-  }[]
-}
+// Initialize the Gemini client
+const genAI = new GoogleGenerativeAI(API_KEY)
 
 // ✅ Extract text from a remote PDF
 async function extractPdfText(pdfUrl: string): Promise<string> {
@@ -29,7 +23,7 @@ async function extractPdfText(pdfUrl: string): Promise<string> {
     }
 
     const parsed = await pdfParse(buffer)
-    console.log('PDF parsed successfully',parsed)
+    console.log('PDF parsed successfully', parsed)
     return parsed.text || ''
   } catch (error) {
     console.error('PDF extraction failed:', error)
@@ -37,7 +31,7 @@ async function extractPdfText(pdfUrl: string): Promise<string> {
   }
 }
 
-// ✅ Build the LLM prompt
+// ✅ Build the LLM prompt (unchanged)
 function createLLMPrompt({
   title,
   description,
@@ -103,24 +97,15 @@ export async function estimateProjectPrice({
   try {
     const pdfText = pdfUrl ? await extractPdfText(pdfUrl) : ''
     const prompt = createLLMPrompt({ title, description, pdfText, deadline })
+    console.log('Generated prompt:', prompt)
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
-      }
-    )
+    // Get the generative model
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME })
 
-    if (!geminiRes.ok) {
-      throw new Error(`Gemini API error: ${geminiRes.statusText}`)
-    }
-
-    const geminiData = (await geminiRes.json()) as GeminiResponse
-    const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    // Generate content
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    const text = response.text()
 
     const priceMatch = text.match(/\b(1[0-9]{2}|2[0-4][0-9]|250)\b/)
     const estimatedPrice = priceMatch ? `${priceMatch[0]}$` : undefined

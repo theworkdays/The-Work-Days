@@ -61,7 +61,7 @@ export const uploaddef = async (
           estimatedPrice = estimation.estimatedPrice as string
         }
         else{
-          throw new Error('Failed to estimate price')
+           handleError("unexpected",'Failed to estimate price')
         }
       } catch (e) {
         console.error('Estimation failed:', e)
@@ -82,7 +82,7 @@ export const uploaddef = async (
         status: estimatedPrice ? 'reviewed' : 'under review',
         attachments: fileId,
         user: userId,
-        price: estimatedPrice,
+        Price: estimatedPrice ? parseInt(estimatedPrice) : null,
       }
     )
 
