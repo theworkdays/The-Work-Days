@@ -1,22 +1,36 @@
-### 📚 The Workdays – Scalable Academic Support via AI & Cost Arbitrage
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-**The Workdays** is a business-driven platform designed to transform academic support services by combining **AI automation** with **low-cost skilled interns** to deliver high-quality, affordable project assistance for university students under pressure.
+## Getting Started
 
-🔍 **Core Highlights:**
-- Leverages **cost arbitrage** to keep services affordable while maintaining quality.
-- Integrates **AI tools** for faster, smarter content and task delivery.
-- Targets a **strong, growing demand** in the academic assistance market.
-- Built with sustainability, scalability, and **legal/ethical awareness** in mind.
+First, run the development server:
 
-💡 **Value Proposition:**
-- Helps students meet tight academic deadlines with ease.
-- Generates sustainable revenue while optimizing operational costs.
-- Recruitment and marketing strategies built around **trust and reach**.
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-🛠️ This repository includes:
-- Project blueprint and documentation
-- Automation scripts & AI model integrations
-- Marketing and business structure insights
-- Legal risk mitigation strategies
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-**The Workdays** is more than just a service — it’s a roadmap to building a globally scalable, ethical, and student-centric academic support system.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
