@@ -16,7 +16,7 @@ export default function DashboardPage() {
   const [_referralsverify, setReferralsverify] = useState<boolean>(false)
   const [totalEarnings, setTotalEarnings] = useState<number>(0)
   const [totalReferrals, setTotalReferrals] = useState<number>(0)
-
+  console.log("Referrals:", _referralsverify)
   useEffect(() => {
     // Show welcome toast when dashboard loads
     success({
@@ -139,23 +139,63 @@ export default function DashboardPage() {
       {assignments.length > 0 ? (
         assignments.map((assignment, index) => (
           <div
-            key={index}
-            className="flex items-center border border-gray-800 rounded-lg p-3 hover:bg-gray-800/50 transition-colors"
-          >
-            <div className={`h-3 w-3 rounded-full flex-shrink-0 ${getStatusColor(assignment.status)} mr-3`}></div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-4 text-sm">
-                <span className="font-medium text-gray-200 truncate">{assignment.title}</span>
-                <span className="text-gray-400 truncate hidden md:inline">
-                  {assignment.description || "No description"}
-                </span>
-                <span className="text-gray-400 whitespace-nowrap">Due {assignment.deadline}</span>
-              </div>
-            </div>
-            <div className="ml-auto pl-4">
-              <span className="text-gray-300 whitespace-nowrap">{assignment.status}</span>
-            </div>
-          </div>
+    key={index}
+    className="flex items-center border border-gray-800 rounded-lg p-3 hover:bg-gray-800/50 transition-colors"
+  >
+    {/* Colored status dot */}
+    <div
+      className={`h-3 w-3 rounded-full flex-shrink-0 ${getStatusColor(assignment.status)} mr-3`}
+    ></div>
+
+    {/* Left: title + description */}
+    <div className="flex flex-col gap-1 flex-1 min-w-0 max-w-xs">
+      <span
+        className="font-medium text-gray-200 break-words line-clamp-2"
+        title={assignment.title}
+        style={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'normal',
+          wordBreak: 'break-word',
+          display: '-webkit-box',
+          WebkitBoxOrient: 'vertical',
+          WebkitLineClamp: 1,
+        }}
+      >
+        {assignment.title}
+      </span>
+      <span
+        className="text-gray-400 hidden md:inline break-words line-clamp-1"
+        title={assignment.description || "No description"}
+        style={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'normal',
+          wordBreak: 'break-word',
+          display: '-webkit-box',
+          WebkitBoxOrient: 'vertical',
+          WebkitLineClamp: 1,
+        }}
+      >
+        {assignment.description || "No description"}
+      </span>
+    </div>
+
+    {/* Middle: Due date */}
+    <div className="text-center mx-6 text-sm text-gray-400 whitespace-nowrap">
+      Due {new Date(assignment.deadline).toLocaleDateString()}{" "}
+      {new Date(assignment.deadline).toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })}
+    </div>
+
+    {/* Right: Status */}
+    <div className="ml-auto pl-4 text-gray-300 whitespace-nowrap">
+      {assignment.status}
+    </div>
+  </div>
         ))
       ) : (
         <div className="text-center py-6 text-gray-400">No projects found</div>

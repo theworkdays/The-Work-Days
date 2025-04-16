@@ -1,12 +1,13 @@
 "use client"
 
-import { FileText, Home, LogOut, Upload, User } from 'lucide-react'
+import { FileText, Home, LogOut, Upload, User } from "lucide-react"
+import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import type React from "react"
 import type { ReactNode } from "react"
-import { Suspense, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
-import { useToast } from '@/components/toast'
+import { useToast } from "@/components/toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -29,10 +30,10 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { UserData } from '@/services/Auth/me'
-import { User as UserClass } from '@/services/User.service'
+import { UserData } from "@/services/Auth/me"
+import { User as UserClass } from "@/services/User.service"
 
-import Loading from '../loading'
+import Loading from "../loading"
 
 interface NavItemProps {
   href: string
@@ -86,10 +87,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       try {
         const { data, error } = await UserClass.me()
         if (error) {
-          toast.error({
-            title: "Error",
-            description: error,
-          })
+          toast.error({ title: "Error", description: error })
           return
         }
         setUserData(data!)
@@ -103,8 +101,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }
 
     fetchUserData()
-  }, [])
+  }, [toast])
 
+  // ✅ FIX: Reset isNavigating when the path changes
   useEffect(() => {
     setIsNavigating(false)
   }, [pathname])
@@ -113,10 +112,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     try {
       const { error } = await UserClass.logout()
       if (error) {
-        toast.error({
-          title: "Error",
-          description: error,
-        })
+        toast.error({ title: "Error", description: error })
         return
       }
 
@@ -219,10 +215,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </DropdownMenuItem>
+                    <Link href="/profile">
+                      <DropdownMenuItem>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </DropdownMenuItem>
+                    </Link>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
@@ -233,11 +231,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <Suspense fallback={<Loading />}>
-            <main className="flex-1 overflow-auto bg-gray-950">
-              {isNavigating ? <Loading /> : children}
-            </main>
-          </Suspense>
+          <main className="flex-1 overflow-auto bg-gray-950">
+            {isNavigating ? <Loading /> : children}
+          </main>
         </div>
       </SidebarProvider>
     </div>

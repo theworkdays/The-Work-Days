@@ -8,7 +8,7 @@ import { AuthSession } from "./services/AuthSession.service";
 export const protectedPaths = ["/profile","/dashboard"];
 
 export const NotAuthenticatedPath = ["/auth"];
-
+ 
 export default async function Middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 

@@ -1,5 +1,6 @@
 "use client"
 import { ArrowRight, FileText, Upload, X } from "lucide-react"
+import { useRouter } from "next/navigation"
 import type React from "react"
 import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -20,11 +21,23 @@ interface FormData {
   description: string
 }
 
+interface UploadResponse {
+  error?: string
+  data?: {
+    estimatedPrice: number
+    id: string
+  } | string
+}
+
+function isPriceEstimated(data: UploadResponse['data']): data is { estimatedPrice: number; id: string } {
+  return data !== undefined && typeof data !== 'string' && 'estimatedPrice' in data
+}
+
 export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { success, error } = useToast()
-
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -66,39 +79,57 @@ export default function UploadPage() {
     const k = 1024
     const sizes = ["Bytes", "KB", "MB", "GB"]
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2) + " " + sizes[i])
   }
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
     try {
-      console.log(data)
       const response = await Assignment.upload(
         files[0],
         data.title,
         data.description,
         data.subject,
         new Date(data.deadline),
-      )
-
-      console.log(response)
+      ) as UploadResponse
 
       if (response.error) {
         error({
           title: "Error submitting assignment",
-          description: response.error! || "There was a problem submitting your assignment. Please try again.",
+          description: response.error || "There was a problem submitting your assignment. Please try again.",
         })
         return
       }
 
-      // Success response
+      if (!response.data) {
+        error({
+          title: "Error submitting assignment",
+          description: "No data received from server",
+        })
+        return
+      }
 
-      success({
-        title: "Assignment submitted successfully!",
-        description: "We'll review your details and get back to you with a quote soon.",
-      })
+      if (isPriceEstimated(response.data)) {
+        success({
+          title: "Assignment submitted successfully!",
+          description: `We've estimated your price at $${response.data.estimatedPrice}`,
+        })
+        console.log("Redirecting to:", `/project/${response.data.id}/billing`);
+        // use window to redirect to the billing page
+        if (typeof window !== "undefined") {
+          window.location.href = `/projects/${response.data.id}/billing`
+        }
+        else {
+          router.push(`/projects/${response.data.id}/billing`)
+        }
 
-      // Reset form and clear files
+      } else {
+        success({
+          title: "Assignment submitted successfully!",
+          description: response.data || "We'll review your details and get back to you with a quote soon.",
+        })
+      }
+
       reset()
       setFiles([])
     } catch (err) {
@@ -146,48 +177,48 @@ export default function UploadPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-  <div className="space-y-2 md:col-span-3">  {/* Changed from md:col-span-2 to md:col-span-3 */}
-    <Label htmlFor="subject" className="text-gray-300">
-      Subject
-    </Label>
-    <Controller
-      name="subject"
-      control={control}
-      defaultValue=""
-      rules={{ required: "Subject is required" }}
-      render={({ field }) => (
-        <Select onValueChange={field.onChange} value={field.value}>
-          <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100 w-full">  {/* Added w-full */}
-            <SelectValue placeholder="Select subject" />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
-            <SelectItem value="programming">Programming</SelectItem>
-            <SelectItem value="web-development">Web Development</SelectItem>
-            <SelectItem value="data-analysis">Data Analysis</SelectItem>
-            <SelectItem value="database">Database Design</SelectItem>
-            <SelectItem value="mobile">Mobile Development</SelectItem>
-            <SelectItem value="ai-ml">AI & Machine Learning</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      )}
-    />
-    {errors.subject && <p className="text-sm text-red-500 mt-1">{errors.subject.message}</p>}
-  </div>
+                  <div className="space-y-2 md:col-span-3">
+                    <Label htmlFor="subject" className="text-gray-300">
+                      Subject
+                    </Label>
+                    <Controller
+                      name="subject"
+                      control={control}
+                      defaultValue=""
+                      rules={{ required: "Subject is required" }}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100 w-full">
+                            <SelectValue placeholder="Select subject" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
+                            <SelectItem value="programming">Programming</SelectItem>
+                            <SelectItem value="web-development">Web Development</SelectItem>
+                            <SelectItem value="data-analysis">Data Analysis</SelectItem>
+                            <SelectItem value="database">Database Design</SelectItem>
+                            <SelectItem value="mobile">Mobile Development</SelectItem>
+                            <SelectItem value="ai-ml">AI & Machine Learning</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.subject && <p className="text-sm text-red-500 mt-1">{errors.subject.message}</p>}
+                  </div>
 
-  <div className="space-y-2 md:col-span-1">  {/* Removed col-span specification since it will take remaining space */}
-    <Label htmlFor="deadline" className="text-gray-300">
-      Deadline
-    </Label>
-    <Input
-      id="deadline"
-      type="date"
-      className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500 w-full"
-      {...register("deadline", { required: "Deadline is required" })}
-    />
-    {errors.deadline && <p className="text-sm text-red-500 mt-1">{errors.deadline.message}</p>}
-  </div>
-</div>
+                  <div className="space-y-2 md:col-span-1">
+                    <Label htmlFor="deadline" className="text-gray-300">
+                      Deadline
+                    </Label>
+                    <Input
+                      id="deadline"
+                      type="date"
+                      className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500 w-full"
+                      {...register("deadline", { required: "Deadline is required" })}
+                    />
+                    {errors.deadline && <p className="text-sm text-red-500 mt-1">{errors.deadline.message}</p>}
+                  </div>
+                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="project-description" className="text-gray-300">

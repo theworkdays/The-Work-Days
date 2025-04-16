@@ -57,7 +57,7 @@ type referal = {
 }
 
 export default function BillingPage() {
-   const params = useParams()
+  const params = useParams()
   const [documents, setDocuments] = useState<doc[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -74,9 +74,9 @@ export default function BillingPage() {
   const router = useRouter()
 
   // Handle PayPal redirect and capture payment
-  const handleCapturePayment = async (orderID: string,projectId:string) => {
+  const handleCapturePayment = async (orderID: string, projectId: string) => {
     try {
-      const captureResponse = await payment.capturePaypalorder(orderID,projectId)
+      const captureResponse = await payment.capturePaypalorder(orderID, projectId)
       if (captureResponse.error) {
         toast.warning({
           title: "Payment failed",
@@ -120,11 +120,11 @@ export default function BillingPage() {
   useEffect(() => {
     const handlePayPalRedirect = async () => {
       const urlParams = new URLSearchParams(window.location.search)
-      
+
       const orderID = urlParams.get("token")
       const projectId = params.projectId as string
       if (orderID && projectId) {
-        const success = await handleCapturePayment(orderID,projectId)
+        const success = await handleCapturePayment(orderID, projectId)
 
         // Clean up URL parameters after processing
         if (window.history && window.history.replaceState) {
@@ -140,7 +140,7 @@ export default function BillingPage() {
     }
 
     handlePayPalRedirect()
-  }, [])
+  },)
 
   const fetchAssignments = async () => {
     try {
@@ -224,8 +224,8 @@ export default function BillingPage() {
       }
 
       console.log("PayPal Order Response:", response.id)
-      
-const approvalLink =response.links[1]?.href
+
+      const approvalLink = response.links[1]?.href
 
       console.log("Approval Link:", approvalLink)
       if (!approvalLink) {
@@ -300,18 +300,18 @@ const approvalLink =response.links[1]?.href
           <CardTitle className="text-gray-100">Payment Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <p className="text-sm text-gray-400">Total Amount</p>
-              <p className="text-2xl font-bold text-gray-100">${totalAmount.toFixed(2)}</p>
+              <p className="text-xs sm:text-sm text-gray-400">Total Amount</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-100">${totalAmount.toFixed(2)}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-gray-400">Paid Amount</p>
-              <p className="text-2xl font-bold text-green-500">${paidAmount.toFixed(2)}</p>
+              <p className="text-xs sm:text-sm text-gray-400">Paid Amount</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-500">${paidAmount.toFixed(2)}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-gray-400">Pending Amount</p>
-              <p className="text-2xl font-bold text-yellow-500">${pendingAmount.toFixed(2)}</p>
+              <p className="text-xs sm:text-sm text-gray-400">Pending Amount</p>
+              <p className="text-xl sm:text-2xl font-bold text-yellow-500">${pendingAmount.toFixed(2)}</p>
             </div>
           </div>
         </CardContent>
@@ -322,20 +322,33 @@ const approvalLink =response.links[1]?.href
           filteredDocuments.map((doc) => (
             <Card key={doc.$id} className="bg-gray-900 border-gray-800">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  {/* Left section: ID and Title */}
                   <div className="space-y-1">
                     <div className="flex items-center space-x-2">
                       <DollarSign className="h-4 w-4 text-gray-400" />
-                      <span className="font-medium text-gray-100">{doc.$id}</span>
+                      <span className="font-medium text-gray-100 text-sm sm:text-base lg:text-lg break-all">
+                      {doc.projectTitle}
+                       
+                      </span>
                     </div>
-                    <p className="text-sm text-gray-400">{doc.projectTitle}</p>
+                    <p className="text-xs sm:text-sm md:text-base text-gray-400 break-words max-w-xs">
+                    id: {doc.$id}
+                    </p>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="text-right">
-                      <p className="font-medium text-gray-100">${(doc.Price || 0).toFixed(2)}</p>
-                      <p className={`text-sm ${getStatusColor(doc.ispaid)}`}>{doc.ispaid ? "Paid" : "Pending"}</p>
+
+                  {/* Right section: Price, Status, Actions */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
+                    <div className="text-right sm:text-left">
+                      <p className="font-medium text-gray-100 text-sm sm:text-base lg:text-lg">
+                        ${(doc.Price || 0).toFixed(2)}
+                      </p>
+                      <p className={`text-xs sm:text-sm ${getStatusColor(doc.ispaid)}`}>
+                        {doc.ispaid ? "Paid" : "Pending"}
+                      </p>
                     </div>
-                    <div className="flex space-x-2">
+
+                    <div className="flex flex-wrap gap-2 justify-end sm:justify-start">
                       {doc.downloadlink && (
                         <Button
                           variant="outline"
@@ -350,7 +363,7 @@ const approvalLink =response.links[1]?.href
                         <Button
                           variant="default"
                           size="sm"
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
                           onClick={() => handleOpenPaymentDialog(doc)}
                         >
                           <CreditCard className="h-4 w-4 mr-2" />

@@ -1,5 +1,5 @@
 "use server";
-import { AppwriteException, Models } from "node-appwrite";
+import { AppwriteException, Models, Query } from "node-appwrite";
 
 import { createSession } from "@/config/appwrite.config";
 import { UploadCollection } from "@/models/collections/upload.collection";
@@ -40,15 +40,14 @@ export const getassignmentsdef = async () => {
         const userId = user?.$id as string;
 
         // Fetch all documents from UploadCollection
-        const documents = await database.listDocuments<Assignments>("main", UploadCollection);
+        const documents = await database.listDocuments<Assignments>("main", UploadCollection,[
+            Query.equal("user", userId),
+        ]);
         console.log("Documents:", documents);
         // Filter by user ID
-        const userDocuments = documents.documents.filter(
-            (doc) => doc.user === userId
-        );
 
         return {
-            data: userDocuments,
+            data: documents.documents as Assignments[],
             error: undefined,
         };
     } catch (e: unknown) {

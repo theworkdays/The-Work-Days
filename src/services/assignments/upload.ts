@@ -8,11 +8,10 @@ import { projectbucketId } from '@/models/buckets/projectdetails'
 import { UploadCollection } from '@/models/collections/upload.collection'
 import { User } from '@/services/User.service'
 import { handleError } from '@/utils/errorHandler'
-import { Url } from '@/utils/url'
 
 import { estimateProjectPrice } from './getpriceprediction'
 
-const ENABLE_ESTIMATION = process.env.ENABLE_PRICE_ESTIMATION === 'true'
+const ENABLE_ESTIMATION = process.env.ENABLE_PRICE_ESTIMATION 
 
 export const uploaddef = async (
   file: File | undefined,
@@ -87,15 +86,14 @@ export const uploaddef = async (
     )
 
     revalidatePath('/uploads')
-
     return {
       error: undefined,
       data: estimatedPrice
         ? {
             estimatedPrice,
-            link: Url.extendURL(publicUrl || '', `${document.$id}/billing`)
+            id: document.$id
           }
-        : 'Document uploaded successfully (price estimation pending)',
+        : 'Document uploaded successfully (price estimation pending)'
     }
   } catch (e: unknown) {
     return handleError(e, 'Failed to upload and create document')
