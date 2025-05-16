@@ -18,7 +18,8 @@ export const uploaddef = async (
   title: string,
   description: string,
   subject: string,
-  deadline: Date
+  deadline: Date,
+  phone: string
 ): Promise<{ error?: string; data?: unknown }> => {
   try {
     const session = await createSession()
@@ -82,6 +83,7 @@ export const uploaddef = async (
         attachments: fileId,
         user: userId,
         Price: estimatedPrice ? parseInt(estimatedPrice) : null,
+        Phone: phone,
       }
     )
 

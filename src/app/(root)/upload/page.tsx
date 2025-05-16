@@ -19,18 +19,21 @@ interface FormData {
   subject: string
   deadline: string
   description: string
+  phone: string
 }
 
 interface UploadResponse {
   error?: string
-  data?: {
-    estimatedPrice: number
-    id: string
-  } | string
+  data?:
+    | {
+        estimatedPrice: number
+        id: string
+      }
+    | string
 }
 
-function isPriceEstimated(data: UploadResponse['data']): data is { estimatedPrice: number; id: string } {
-  return data !== undefined && typeof data !== 'string' && 'estimatedPrice' in data
+function isPriceEstimated(data: UploadResponse["data"]): data is { estimatedPrice: number; id: string } {
+  return data !== undefined && typeof data !== "string" && "estimatedPrice" in data
 }
 
 export default function UploadPage() {
@@ -85,13 +88,14 @@ export default function UploadPage() {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true)
     try {
-      const response = await Assignment.upload(
+      const response = (await Assignment.upload(
         files[0],
         data.title,
         data.description,
         data.subject,
         new Date(data.deadline),
-      ) as UploadResponse
+        data.phone,
+      )) as UploadResponse
 
       if (response.error) {
         error({
@@ -114,15 +118,13 @@ export default function UploadPage() {
           title: "Assignment submitted successfully!",
           description: `We've estimated your price at $${response.data.estimatedPrice}`,
         })
-        console.log("Redirecting to:", `/project/${response.data.id}/billing`);
+        console.log("Redirecting to:", `/project/${response.data.id}/billing`)
         // use window to redirect to the billing page
         if (typeof window !== "undefined") {
           window.location.href = `/projects/${response.data.id}/billing`
-        }
-        else {
+        } else {
           router.push(`/projects/${response.data.id}/billing`)
         }
-
       } else {
         success({
           title: "Assignment submitted successfully!",
@@ -218,6 +220,25 @@ export default function UploadPage() {
                     />
                     {errors.deadline && <p className="text-sm text-red-500 mt-1">{errors.deadline.message}</p>}
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-gray-300">
+                    Contact Number
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="e.g., +1 (555) 123-4567"
+                    className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                    {...register("phone", {
+                      pattern: {
+                        value: /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/,
+                        message: "Please enter a valid phone number",
+                      },
+                    })}
+                  />
+                  {errors.phone && <p className="text-sm text-red-500 mt-1">{errors.phone.message}</p>}
                 </div>
 
                 <div className="space-y-2">

@@ -56,6 +56,7 @@ export async function createUploadCollection() {
     await database?.createStringAttribute(dbName, collectionId, "downloadlink",255, false,undefined,true);
     await database?.createIntegerAttribute(dbName, collectionId, "Price", false);
     await database?.createBooleanAttribute(dbName, collectionId, "ispaid", false,false);
+    await database?.createStringAttribute(dbName, collectionId, "Phone", 10,true);
     await database?.createIndex(
         dbName,
         collectionId,
