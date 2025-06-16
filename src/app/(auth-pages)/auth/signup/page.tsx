@@ -261,7 +261,7 @@ export default function SignupPage() {
               const { error } = await Auth.googleLogin();
               if (error) {
                 toast.error({
-                  title: "Error",
+                  title: "Google sign in error",
                   description: error
                 })
                 setGoogleClicked(false)
